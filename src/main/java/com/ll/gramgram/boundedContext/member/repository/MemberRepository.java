@@ -1,5 +1,6 @@
 package com.ll.gramgram.boundedContext.member.repository;
 
+import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -9,4 +10,6 @@ import java.util.Optional;
 // JpaRepository<Member, Long> => Member == member 테이블, Long == member 의 주키의 타입
 public interface MemberRepository extends JpaRepository<Member, Long> {
     Optional<Member> findByUsername(String username);
+
+    Member findByInstaMember(InstaMember instaMember);
 }

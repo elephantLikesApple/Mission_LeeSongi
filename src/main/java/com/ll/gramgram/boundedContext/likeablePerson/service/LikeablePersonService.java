@@ -1,23 +1,28 @@
 package com.ll.gramgram.boundedContext.likeablePerson.service;
 
+import com.ll.gramgram.base.rq.Rq;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepository;
 import com.ll.gramgram.boundedContext.member.entity.Member;
+import com.ll.gramgram.boundedContext.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class LikeablePersonService {
+    private final Rq rq;
     private final LikeablePersonRepository likeablePersonRepository;
     private final InstaMemberService instaMemberService;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
@@ -26,6 +31,7 @@ public class LikeablePersonService {
         }
 
         if (member.getInstaMember().getUsername().equals(username)) {
+            System.out.println("본인을 호감상대로 등록할 수 없습니다.");
             return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
         }
 
@@ -47,5 +53,27 @@ public class LikeablePersonService {
 
     public List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
         return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
+    }
+
+    public Optional<LikeablePerson> findById(Long id) {
+        return likeablePersonRepository.findById(id);
+    }
+
+    @Transactional
+    public RsData<LikeablePerson> delete(Long id, String name) {
+        Optional<LikeablePerson> likeablePerson = likeablePersonRepository.findById(id);
+
+        if(!likeablePerson.isPresent()) {
+            return RsData.of("F-1", "존재하지 않는 항목입니다.");
+        }
+
+        InstaMember instaMember = likeablePerson.get().getFromInstaMember();
+        Member member = memberRepository.findByInstaMember(instaMember);
+        if(!member.getUsername().equals(name)) {
+            return RsData.of("F-2", "삭제 권한이 없습니다.");
+        }
+
+        likeablePersonRepository.delete(likeablePerson.get());
+        return RsData.of("S-1", "호감 표시가 철회되었습니다.");
     }
 }
