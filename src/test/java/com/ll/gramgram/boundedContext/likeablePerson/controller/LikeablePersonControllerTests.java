@@ -157,7 +157,7 @@ public class LikeablePersonControllerTests {
     }
 
     @Test
-    @DisplayName("호감목록 삭제")
+    @DisplayName("호감목록 삭제 (S-1)")
     @WithUserDetails("user3")
     void t006() throws Exception {
         // WHEN
@@ -170,8 +170,44 @@ public class LikeablePersonControllerTests {
                 .andExpect(handler().handlerType(LikeablePersonController.class))
                 .andExpect(handler().methodName("delete"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/likeablePerson/list"));
+                .andExpect(redirectedUrlPattern("/likeablePerson/list**"));
 
-        assertThat(likeablePersonService.findById(1L)).isNull();
+        assertThat(likeablePersonService.findById(1L)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("호감목록 삭제 (F-1) - 존재하지 않는 항목")
+    @WithUserDetails("user3")
+    void t007() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(get("/likeablePerson/delete/{id}", 999))
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(request().attribute("historyBackErrorMsg", "존재하지 않는 항목입니다."))
+        ;
+    }
+
+    @Test
+    @DisplayName("호감목록 삭제 (F-2) - 권한이 없는 항목 삭제")
+    @WithUserDetails("user1")
+    void t008() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(get("/likeablePerson/delete/{id}", 1))
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("delete"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(request().attribute("historyBackErrorMsg", "삭제 권한이 없습니다."))
+        ;
     }
 }
