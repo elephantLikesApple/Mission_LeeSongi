@@ -31,7 +31,6 @@ public class LikeablePersonService {
         }
 
         if (member.getInstaMember().getUsername().equals(username)) {
-            System.out.println("본인을 호감상대로 등록할 수 없습니다.");
             return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
         }
 
