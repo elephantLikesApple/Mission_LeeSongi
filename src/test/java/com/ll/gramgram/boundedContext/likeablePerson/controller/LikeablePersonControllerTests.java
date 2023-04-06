@@ -195,7 +195,7 @@ public class LikeablePersonControllerTests {
 
     @Test
     @DisplayName("호감목록 삭제 (F-2) - 권한이 없는 항목 삭제")
-    @WithUserDetails("user1")
+    @WithUserDetails("user2")
     void t008() throws Exception {
         // WHEN
         ResultActions resultActions = mvc

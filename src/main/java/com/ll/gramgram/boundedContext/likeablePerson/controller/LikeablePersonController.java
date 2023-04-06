@@ -67,8 +67,8 @@ public class LikeablePersonController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") Long id, Principal principal) {
-        RsData<LikeablePerson> rsData = likeablePersonService.delete(id, principal.getName());
+    public String delete(@PathVariable("id") Long id) {
+        RsData<LikeablePerson> rsData = likeablePersonService.delete(id, rq.getMember().getInstaMember());
 
         if(rsData.isFail()) {
             return rq.historyBack(rsData);
