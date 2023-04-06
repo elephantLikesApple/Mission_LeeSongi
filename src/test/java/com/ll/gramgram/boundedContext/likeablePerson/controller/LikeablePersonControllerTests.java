@@ -188,9 +188,10 @@ public class LikeablePersonControllerTests {
         resultActions
                 .andExpect(handler().handlerType(LikeablePersonController.class))
                 .andExpect(handler().methodName("delete"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(request().attribute("historyBackErrorMsg", "존재하지 않는 항목입니다."))
-        ;
+                .andExpect(status().is4xxClientError())
+                .andExpect(request().attribute("historyBackErrorMsg", "존재하지 않는 항목입니다."));
+
+        assertThat(likeablePersonService.findById(1L)).isNotEmpty();
     }
 
     @Test
@@ -206,8 +207,9 @@ public class LikeablePersonControllerTests {
         resultActions
                 .andExpect(handler().handlerType(LikeablePersonController.class))
                 .andExpect(handler().methodName("delete"))
-                .andExpect(status().is2xxSuccessful())
-                .andExpect(request().attribute("historyBackErrorMsg", "삭제 권한이 없습니다."))
-        ;
+                .andExpect(status().is4xxClientError())
+                .andExpect(request().attribute("historyBackErrorMsg", "삭제 권한이 없습니다."));
+
+        assertThat(likeablePersonService.findById(1L)).isNotEmpty();
     }
 }
