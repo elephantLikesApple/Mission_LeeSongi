@@ -37,8 +37,9 @@
 
 **[특이사항]**
 
-- 권한을 체크하기 위해 likeable_person -> insta_member -> member 순으로 조회가 필요했는데, 다음 세가지 방법 중에 어떤게 괜찮은 방법인지 모르겠다.
-  - member repository에 native query를 보내서 한번에 불러오기
-  - member service에서 findByLikeablePerson() 함수를 만들고 likeablePerson service에서 호출하기
-  - likeablePerson seivce에서 세 테이블의 repository를 불러와 jpa함수로 member 조회하기
-- 모든 테이블에 present_username 속성을 넣으면 안되는지 궁금하다.
+- [x] 삭제 권한 체크 변경
+  - [x] 데이터 조회는 pk인 id값으로
+  - [x] rq 활용해 현재 로그인한 멤버 받아오기
+- [x] 삭제 요청은 get이 아닌 delete로 변경하기
+- [x] historyBack 기능 보완
+- [x] 호감표시한 상대/호감표시 받은 상대 양방향으로 조회할 수 있도록 변경하기
