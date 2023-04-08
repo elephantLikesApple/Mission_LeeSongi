@@ -17,8 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -162,7 +161,8 @@ public class LikeablePersonControllerTests {
     void t006() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
-                .perform(get("/likeablePerson/delete/{id}", 1))
+                .perform(delete("/likeablePerson/{id}", 1)
+                        .with(csrf()))
                 .andDo(print());
 
         // THEN
@@ -181,7 +181,8 @@ public class LikeablePersonControllerTests {
     void t007() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
-                .perform(get("/likeablePerson/delete/{id}", 999))
+                .perform(delete("/likeablePerson/{id}", 999)
+                        .with(csrf()))
                 .andDo(print());
 
         // THEN
@@ -200,7 +201,8 @@ public class LikeablePersonControllerTests {
     void t008() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
-                .perform(get("/likeablePerson/delete/{id}", 1))
+                .perform(delete("/likeablePerson/{id}", 1)
+                        .with(csrf()))
                 .andDo(print());
 
         // THEN
