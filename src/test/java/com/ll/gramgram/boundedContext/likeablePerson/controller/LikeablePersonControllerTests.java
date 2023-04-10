@@ -1,7 +1,6 @@
 package com.ll.gramgram.boundedContext.likeablePerson.controller;
 
-
-import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
+import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
 import com.ll.gramgram.boundedContext.likeablePerson.service.LikeablePersonService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -31,6 +30,9 @@ public class LikeablePersonControllerTests {
 
     @Autowired
     private LikeablePersonService likeablePersonService;
+
+    @Autowired
+    private InstaMemberService instaMemberService;
 
     @Test
     @DisplayName("등록 폼(인스타 인증을 안해서 폼 대신 메세지)")
@@ -213,5 +215,51 @@ public class LikeablePersonControllerTests {
                 .andExpect(request().attribute("historyBackErrorMsg", "삭제 권한이 없습니다."));
 
         assertThat(likeablePersonService.findById(1L)).isNotEmpty();
+    }
+
+    @Test
+    @DisplayName("등록 폼 처리(user3이 insta_user4에게 호감표시(외모), 기존에 외모 선택)")
+    @WithUserDetails("user3")
+    void t009() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(post("/likeablePerson/add")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "insta_user4")
+                        .param("attractiveTypeCode", "1")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("add"))
+                .andExpect(status().is4xxClientError())
+                .andExpect(request().attribute("historyBackErrorMsg", "동일 대상에 중복으로 호감표시 할 수 없습니다."));
+    }
+
+    @Test
+    @DisplayName("등록 폼 처리(user3이 insta_user4에게 호감표시(성격), 기존에 외모 선택)")
+    @WithUserDetails("user3")
+    void t010() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(post("/likeablePerson/add")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "insta_user4")
+                        .param("attractiveTypeCode", "2")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("add"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("/likeablePerson/list**"));
+
+        assertThat(instaMemberService.findByUsername("insta_user3").get().getFromLikeablePeople()
+                .stream().filter(e -> e.getToInstaMember().getUsername().equals("insta_user4"))
+                .count()).isOne();
     }
 }
