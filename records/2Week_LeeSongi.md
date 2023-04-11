@@ -14,12 +14,12 @@
   - [x] 2️⃣호감표시는 최대 10개로 제한
     - [x] 처리 불가한 경우 rq.historyBack
 
--[ ] 네이버 로그인 연동
-  - [ ] 스프링 Oauth2 클라이언트로 구현
-  - [ ] providerTypeCode: Naver
-  - [ ] member테이블의 username에 이름과 성별 정보는 포함되지 않도록
-    - [ ] (1단계) NAVER__{"id":2222222222, "gender":"W", "name":"홍길동"}
-    - [ ] (2단계) NAVER__2222222222
+-[x] 네이버 로그인 연동
+  - [x] 스프링 Oauth2 클라이언트로 구현
+  - [x] providerTypeCode: NAVER
+  - [x] member테이블의 username에 이름과 성별 정보는 포함되지 않도록
+    - [x] (1단계) NAVER__{"id":2222222222, "gender":"W", "name":"홍길동"}
+    - [x] (2단계) NAVER__2222222222
 
 ### 2주차 미션 요약
 
@@ -50,5 +50,12 @@
     - 호감표시 개수 늘어났는지 체크하기
   - t012 -> 기존 대상에게 호감표시, 사유 변경 : S-2 성공, redirected
     - 호감표시 개수 늘어났는지 체크하기
+
+**CustomOAuth2UserService.java**
+- application-oauth.yml 파일에 설정 추가
+  - git-ignore 되었음
+- 다음 블로그 글을 참고하여 계정 정보에서 id만 추출하였음
+  - [OAuth 네이버 로그인하기](https://lotuus.tistory.com/80)
+
 
 **[특이사항]**
