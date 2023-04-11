@@ -44,6 +44,12 @@ public class LikeablePersonService {
             return updateAttractiveTypeCode(likeablePersonToUsername.get(), username, attractiveTypeCode);
         }
 
+        // member가 한 호감 표시 목록
+        List<LikeablePerson> myLikes = member.getInstaMember().getFromLikeablePeople();
+        if (myLikes.size() >= 10) {
+            return RsData.of("F-4", "호감상대는 10명까지 등록 가능합니다.");
+        }
+
         InstaMember fromInstaMember = member.getInstaMember();
         InstaMember toInstaMember = instaMemberService.findByUsernameOrCreate(username).getData();
 
