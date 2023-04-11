@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,12 +28,20 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
-        if ( member.hasConnectedInstaMember() == false ) {
+        if (!member.hasConnectedInstaMember()) {
             return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
         }
 
         if (member.getInstaMember().getUsername().equals(username)) {
             return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
+        }
+
+        // member가 한 호감표시 중, username에게 보낸 호감표시를 찾는다.
+        Optional<LikeablePerson> likeablePersonToUsername = member.getInstaMember().getFromLikeablePeople()
+                .stream().filter(e -> e.getToInstaMember().getUsername().equals(username))
+                .findAny(); // 한사람에게 한 번만 호감표시 할 수 있으므로, 결과로 나올 수 있는 likeablePerson은 최대 한 개이다.
+        if(likeablePersonToUsername.isPresent()) {
+            return updateAttractiveTypeCode(likeablePersonToUsername.get(), username, attractiveTypeCode);
         }
 
         InstaMember fromInstaMember = member.getInstaMember();
@@ -52,6 +61,20 @@ public class LikeablePersonService {
         toInstaMember.addToLikeablePerson(likeablePerson); // member에게 호감 표시
 
         return RsData.of("S-1", "입력하신 인스타유저(%s)를 호감상대로 등록되었습니다.".formatted(username), likeablePerson);
+    }
+
+    public RsData<LikeablePerson> updateAttractiveTypeCode(LikeablePerson fromLikeablePerson, String username, int attractiveTypeCode) {
+        String preAttractiveType = fromLikeablePerson.getAttractiveTypeDisplayName();
+        int preAttractiveTypeCode = fromLikeablePerson.getAttractiveTypeCode();
+
+        // 동일 대상에, 동일 사유로 호감표시 불가
+        if(preAttractiveTypeCode == attractiveTypeCode) {
+            return RsData.of("F-3", "동일 대상에 중복으로 호감표시 할 수 없습니다.");
+        }
+
+        fromLikeablePerson.setAttractiveTypeCode(attractiveTypeCode);
+        likeablePersonRepository.save(fromLikeablePerson);
+        return RsData.of("S-2", "%s에 대한 호감사유를 %s에서 %s(으)로 변경합니다.".formatted(username, preAttractiveType, fromLikeablePerson.getAttractiveTypeDisplayName()));
     }
 
     public List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
