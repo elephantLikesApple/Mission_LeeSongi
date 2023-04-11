@@ -262,4 +262,50 @@ public class LikeablePersonControllerTests {
                 .stream().filter(e -> e.getToInstaMember().getUsername().equals("insta_user4"))
                 .count()).isOne();
     }
+
+    @Test
+    @DisplayName("등록 폼 처리(user4이 insta_user12에게 호감표시(성격), 11명째 등록)")
+    @WithUserDetails("user4")
+    void t011() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(post("/likeablePerson/add")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "insta_user12")
+                        .param("attractiveTypeCode", "2")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("add"))
+                .andExpect(status().is4xxClientError())
+                .andExpect(request().attribute("historyBackErrorMsg", "호감상대는 10명까지 등록 가능합니다."));
+
+        assertThat(instaMemberService.findByUsername("insta_user4").get().getFromLikeablePeople().size()).isEqualTo(10);
+    }
+
+    @Test
+    @DisplayName("등록 폼 처리(user4이 insta_user1에게 호감표시(성격), 기존에 외모 선택)")
+    @WithUserDetails("user4")
+    void t012() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(post("/likeablePerson/add")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "insta_user1")
+                        .param("attractiveTypeCode", "2")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("add"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("/likeablePerson/list**"));
+
+        assertThat(instaMemberService.findByUsername("insta_user4").get().getFromLikeablePeople().size()).isEqualTo(10);
+    }
 }
