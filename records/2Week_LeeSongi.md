@@ -7,10 +7,10 @@
 ---
 
 - [ ] 호감 상대 등록 예외처리하기
-  - [ ] 동일 대상에게 중복으로 호감표시 요청
-    - [ ] 사유가 다른 경우는 사유를 업데이트 (S-2)
-    - [ ] 사유가 같은 경우는 처리 불가
-    - [ ] 처리 불가한 경우 rq.historyBack
+  - [x] 동일 대상에게 중복으로 호감표시 요청
+    - [x] 사유가 다른 경우는 사유를 업데이트 (S-2)
+    - [x] 사유가 같은 경우는 처리 불가
+    - [x] 처리 불가한 경우 rq.historyBack
   - [ ] 호감표시는 최대 10개로 제한
     - [ ] 처리 불가한 경우 rq.historyBack
 
@@ -27,6 +27,18 @@
 
 **[접근 방법]**
 
+**LikeablePersonService.java**
+- 동일 대상에게 중복으로 호감표시 요청
+  - member가 한 호감표시 중, username에게 보낸 호감표시 찾기
+    - member가 한 호감표시는 InstaMember에 FromLikeablerPeople로 저장돼있음
+    - username에게 보낸 호감 표시는 for문 혹은, stream filter로 찾을 수 있음
+  - 사유가 동일한지 여부에 따라 다르게 처리
+    - 사유가 동일한 경우 F-3, 에러 처리하기
+    - 사유가 다른 경우 S-2, 사유를 업데이트하기
 
+**LikeablePersonControllerTests.java**
+- 동일 대상에게 중복으로 호감표시 요청
+  - t009 -> 외모를 외모로 변경 : F-3 실패, historyBack
+  - t010 -> 외모를 성격으로 변경 : S-2 성공, redirected
 
 **[특이사항]**
