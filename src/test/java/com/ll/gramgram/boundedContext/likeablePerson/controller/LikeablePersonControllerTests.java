@@ -221,6 +221,8 @@ public class LikeablePersonControllerTests {
     @DisplayName("등록 폼 처리(user3이 insta_user4에게 호감표시(외모), 기존에 외모 선택)")
     @WithUserDetails("user3")
     void t009() throws Exception {
+        long oldCounting = likeablePersonService.countByFromInstaMember_username("insta_user3");
+
         // WHEN
         ResultActions resultActions = mvc
                 .perform(post("/likeablePerson/add")
@@ -236,6 +238,8 @@ public class LikeablePersonControllerTests {
                 .andExpect(handler().methodName("add"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(request().attribute("historyBackErrorMsg", "동일 대상에 중복으로 호감표시 할 수 없습니다."));
+
+        assertThat(likeablePersonService.countByFromInstaMember_username("insta_user3")).isEqualTo(oldCounting);
     }
 
     @Test

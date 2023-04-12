@@ -107,4 +107,8 @@ public class LikeablePersonService {
         likeablePersonRepository.delete(likeablePerson.get());
         return RsData.of("S-1", "%s님에 대한 호감 표시가 철회되었습니다.".formatted(likeablePerson.get().getToInstaMemberUsername()));
     }
+
+    public long countByFromInstaMember_username(String username) {
+        return likeablePersonRepository.countByFromInstaMember_username(username);
+    }
 }
