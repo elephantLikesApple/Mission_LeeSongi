@@ -71,6 +71,7 @@ public class LikeablePersonService {
         return RsData.of("S-1", "입력하신 인스타유저(%s)를 호감상대로 등록되었습니다.".formatted(username), likeablePerson);
     }
 
+    @Transactional
     public RsData<LikeablePerson> updateAttractiveTypeCode(LikeablePerson fromLikeablePerson, String username, int attractiveTypeCode) {
         String preAttractiveType = fromLikeablePerson.getAttractiveTypeDisplayName();
         int preAttractiveTypeCode = fromLikeablePerson.getAttractiveTypeCode();
