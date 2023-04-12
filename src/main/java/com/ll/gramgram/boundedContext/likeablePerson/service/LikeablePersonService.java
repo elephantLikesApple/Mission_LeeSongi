@@ -38,11 +38,12 @@ public class LikeablePersonService {
         }
 
         // member가 한 호감표시 중, username에게 보낸 호감표시를 찾는다.
-        Optional<LikeablePerson> likeablePersonToUsername = member.getInstaMember().getFromLikeablePeople()
-                .stream().filter(e -> e.getToInstaMember().getUsername().equals(username))
-                .findAny(); // 한사람에게 한 번만 호감표시 할 수 있으므로, 결과로 나올 수 있는 likeablePerson은 최대 한 개이다.
-        if(likeablePersonToUsername.isPresent()) {
-            return updateAttractiveTypeCode(likeablePersonToUsername.get(), username, attractiveTypeCode);
+//        Optional<LikeablePerson> likeablePersonToUsername = member.getInstaMember().getFromLikeablePeople()
+//                .stream().filter(e -> e.getToInstaMember().getUsername().equals(username))
+//                .findAny(); // 한사람에게 한 번만 호감표시 할 수 있으므로, 결과로 나올 수 있는 likeablePerson은 최대 한 개이다.
+        LikeablePerson likeablePersonToUsername = likeablePersonRepository.findByFromInstaMemberIdAndToInstaMember_username(member.getInstaMember().getId(), username);
+        if(likeablePersonToUsername!=null) {
+            return updateAttractiveTypeCode(likeablePersonToUsername, username, attractiveTypeCode);
         }
 
         // member가 한 호감 표시 목록
