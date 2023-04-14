@@ -29,27 +29,18 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
-        if (!member.hasConnectedInstaMember()) {
-            return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
+        RsData<LikeablePerson> canAddRsData = canAdd(member, username, attractiveTypeCode);
+
+        if(canAddRsData.isFail()) {
+            return canAddRsData;
         }
 
-        if (member.getInstaMember().getUsername().equals(username)) {
-            return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
-        }
+        if(canAddRsData.getResultCode().equals("S-2")) {
+            LikeablePerson likeablePersonToUsername = canAddRsData.getData();
+            String preAttractiveType = likeablePersonToUsername.getAttractiveTypeDisplayName();
 
-        // member가 한 호감표시 중, username에게 보낸 호감표시를 찾는다.
-//        Optional<LikeablePerson> likeablePersonToUsername = member.getInstaMember().getFromLikeablePeople()
-//                .stream().filter(e -> e.getToInstaMember().getUsername().equals(username))
-//                .findAny(); // 한사람에게 한 번만 호감표시 할 수 있으므로, 결과로 나올 수 있는 likeablePerson은 최대 한 개이다.
-        LikeablePerson likeablePersonToUsername = likeablePersonRepository.findByFromInstaMemberIdAndToInstaMember_username(member.getInstaMember().getId(), username);
-        if(likeablePersonToUsername!=null) {
-            return updateAttractiveTypeCode(likeablePersonToUsername, username, attractiveTypeCode);
-        }
-
-        // member가 한 호감 표시 목록
-        List<LikeablePerson> myLikes = member.getInstaMember().getFromLikeablePeople();
-        if (myLikes.size() >= AppConfig.getLikeablePersonFromMax()) {
-            return RsData.of("F-4", "호감상대는 %s명까지 등록 가능합니다.".formatted(AppConfig.getLikeablePersonFromMax()));
+            likeablePersonToUsername.setAttractiveTypeCode(attractiveTypeCode);
+            return RsData.of("S-2", "%s에 대한 호감사유를 %s에서 %s(으)로 변경합니다.".formatted(username, preAttractiveType, likeablePersonToUsername.getAttractiveTypeDisplayName()));
         }
 
         InstaMember fromInstaMember = member.getInstaMember();
@@ -71,18 +62,30 @@ public class LikeablePersonService {
         return RsData.of("S-1", "입력하신 인스타유저(%s)를 호감상대로 등록되었습니다.".formatted(username), likeablePerson);
     }
 
-    @Transactional
-    public RsData<LikeablePerson> updateAttractiveTypeCode(LikeablePerson fromLikeablePerson, String username, int attractiveTypeCode) {
-        String preAttractiveType = fromLikeablePerson.getAttractiveTypeDisplayName();
-        int preAttractiveTypeCode = fromLikeablePerson.getAttractiveTypeCode();
+    private RsData<LikeablePerson> canAdd(Member member, String username, int attractiveTypeCode) {
+        if (!member.hasConnectedInstaMember()) {
+            return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
+        }
 
-        // 동일 대상에, 동일 사유로 호감표시 불가
-        if(preAttractiveTypeCode == attractiveTypeCode) {
+        if (member.getInstaMember().getUsername().equals(username)) {
+            return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
+        }
+
+        LikeablePerson likeablePersonToUsername = likeablePersonRepository.findByFromInstaMemberIdAndToInstaMember_username(member.getInstaMember().getId(), username);
+        if(likeablePersonToUsername!=null && likeablePersonToUsername.getAttractiveTypeCode() == attractiveTypeCode) {
             return RsData.of("F-3", "동일 대상에 중복으로 호감표시 할 수 없습니다.");
         }
 
-        fromLikeablePerson.setAttractiveTypeCode(attractiveTypeCode);
-        return RsData.of("S-2", "%s에 대한 호감사유를 %s에서 %s(으)로 변경합니다.".formatted(username, preAttractiveType, fromLikeablePerson.getAttractiveTypeDisplayName()));
+        List<LikeablePerson> myLikes = member.getInstaMember().getFromLikeablePeople();
+        if (myLikes.size() >= AppConfig.getLikeablePersonFromMax() && likeablePersonToUsername == null) {
+            return RsData.of("F-4", "호감상대는 %s명까지 등록 가능합니다.".formatted(AppConfig.getLikeablePersonFromMax()));
+        }
+
+        if(likeablePersonToUsername != null) { // 호감 타입까지 같은 경우는 이 코드까지 도달하지 못한다.
+            return RsData.of("S-2", "존재하는 호감 표시이나, 사유를 변경할 수 있습니다.", likeablePersonToUsername);
+        }
+
+        return RsData.of("S-1", "호감상대 등록 가능 상태입니다.");
     }
 
     public List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
