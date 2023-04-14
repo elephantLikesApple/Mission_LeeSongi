@@ -98,6 +98,17 @@ public class LikeablePersonService {
 
     @Transactional
     public RsData<LikeablePerson> delete(Long id, InstaMember instaMember) {
+        RsData<LikeablePerson> likeablePersonRsData = canDelete(id, instaMember);
+
+        if(likeablePersonRsData.isFail()) return likeablePersonRsData;
+
+        likeablePersonRsData.getData().getFromInstaMember().removeToLikeablePerson(likeablePersonRsData.getData());
+        likeablePersonRsData.getData().getToInstaMember().removeToLikeablePerson(likeablePersonRsData.getData());
+        likeablePersonRepository.delete(likeablePersonRsData.getData());
+        return RsData.of("S-1", "%s님에 대한 호감 표시가 철회되었습니다.".formatted(likeablePersonRsData.getData().getToInstaMemberUsername()));
+    }
+
+    private RsData<LikeablePerson> canDelete(Long id, InstaMember instaMember) {
         Optional<LikeablePerson> likeablePerson = likeablePersonRepository.findById(id);
 
         if(likeablePerson.isEmpty()) {
@@ -108,8 +119,7 @@ public class LikeablePersonService {
             return RsData.of("F-2", "삭제 권한이 없습니다.");
         }
 
-        likeablePersonRepository.delete(likeablePerson.get());
-        return RsData.of("S-1", "%s님에 대한 호감 표시가 철회되었습니다.".formatted(likeablePerson.get().getToInstaMemberUsername()));
+        return RsData.of("S-1", "삭제 가능 상태입니다.", likeablePerson.get());
     }
 
     public long countByFromInstaMember_username(String username) {
