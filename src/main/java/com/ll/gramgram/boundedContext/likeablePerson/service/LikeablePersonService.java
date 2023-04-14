@@ -82,7 +82,6 @@ public class LikeablePersonService {
         }
 
         fromLikeablePerson.setAttractiveTypeCode(attractiveTypeCode);
-        likeablePersonRepository.save(fromLikeablePerson);
         return RsData.of("S-2", "%s에 대한 호감사유를 %s에서 %s(으)로 변경합니다.".formatted(username, preAttractiveType, fromLikeablePerson.getAttractiveTypeDisplayName()));
     }
 

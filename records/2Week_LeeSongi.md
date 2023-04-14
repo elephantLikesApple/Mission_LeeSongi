@@ -67,3 +67,39 @@
   - [x] t009
     - 새로운 호감표시 이전의 likeablePerson의 수와 이후의 LikeablePerson의 수 비교
     - 두 수가 같으면 테스트 통과
+- [x] JPA 영속성을 고려하여 LikeablePersonService 리펙토링
+  - JPA 엔티티로 지정된 클래스는 영속성 컨텍스트에 의해 변경 감지(Dirty Checking)된다.
+  - save를 해주지 않아도, 변경이 감지되면 JPA가 알아서 update쿼리를 생성한다.
+  - @Transactional 안에서만 더티 체킹이 일어난다.
+  - 기본적으로 해당 엔티티의 모든 속성값에 대해 update쿼리를 생성하지만, 속성값이 많은 경우 @DynamicUpdate를 사용해 변경된 속성만 반영되도록 할 수 있다.
+- [ ] jpa N+1 문제가 일어나는지 확인
+  - [x] findByFromInstaMemberIdAndToInstaMember_username
+    - 한번의 쿼리로 실행 
+    - instaMember의 fromLikeablePeople와 toLikeablePeople을 레이지 로딩으로 불러온다
+    - likeablePersonRepository에서 join을 해서 불러오는 쿼리가 발생
+    ```sql
+      select
+        l1_0.id,
+        l1_0.attractive_type_code,
+        l1_0.create_date,
+        l1_0.from_insta_member_id,
+        l1_0.from_insta_member_username,
+        l1_0.modify_date,
+        l1_0.to_insta_member_id,
+        l1_0.to_insta_member_username 
+      from
+        likeable_person l1_0
+      left join
+        insta_member t1_0
+      on t1_0.id=l1_0.to_insta_member_id
+      where l1_0.from_insta_member_id=(instaMemberId)
+      and t1_0.username=(username) 
+    ```
+  - [ ] findByUsernameOrCreate
+- [ ] like함수 단순화
+  - [ ] 예외상황 체크 함수 생성
+  - [ ] 예외상황 발생시 like함수 내에서 처리
+- [ ] ui 적용하기
+  - [ ] login.html
+  - [ ] add.html
+  - [ ] layout.html
