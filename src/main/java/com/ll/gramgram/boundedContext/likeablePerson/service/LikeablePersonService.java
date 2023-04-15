@@ -1,7 +1,5 @@
 package com.ll.gramgram.boundedContext.likeablePerson.service;
 
-import com.ll.gramgram.base.appConfig.AppConfig;
-import com.ll.gramgram.base.rq.Rq;
 import com.ll.gramgram.base.rsData.RsData;
 import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
@@ -9,12 +7,10 @@ import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepository;
 import com.ll.gramgram.boundedContext.likeablePerson.strategy.Validation;
 import com.ll.gramgram.boundedContext.member.entity.Member;
-import com.ll.gramgram.boundedContext.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,10 +18,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class LikeablePersonService {
-    private final Rq rq;
     private final LikeablePersonRepository likeablePersonRepository;
     private final InstaMemberService instaMemberService;
-    private final MemberRepository memberRepository;
 
     @Transactional
     public RsData<LikeablePerson> like(Member member, String username, int attractiveTypeCode) {
@@ -69,36 +63,6 @@ public class LikeablePersonService {
                 .then(new Validation.CheckMaxLikes(likeablePersonRepository))
                 .then(new Validation.CheckAttractiveTypeCodeChange(likeablePersonRepository))
                 .excute(member, username, attractiveTypeCode);
-    }
-
-    private RsData<LikeablePerson> canAdd2(Member member, String username, int attractiveTypeCode) {
-        if (!member.hasConnectedInstaMember()) {
-            return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
-        }
-
-        if (member.getInstaMember().getUsername().equals(username)) {
-            return RsData.of("F-1", "본인을 호감상대로 등록할 수 없습니다.");
-        }
-
-        LikeablePerson likeablePersonToUsername = likeablePersonRepository.findByFromInstaMemberIdAndToInstaMember_username(member.getInstaMember().getId(), username);
-        if(likeablePersonToUsername!=null && likeablePersonToUsername.getAttractiveTypeCode() == attractiveTypeCode) {
-            return RsData.of("F-3", "동일 대상에 중복으로 호감표시 할 수 없습니다.");
-        }
-
-        List<LikeablePerson> myLikes = member.getInstaMember().getFromLikeablePeople();
-        if (myLikes.size() >= AppConfig.getLikeablePersonFromMax() && likeablePersonToUsername == null) {
-            return RsData.of("F-4", "호감상대는 %s명까지 등록 가능합니다.".formatted(AppConfig.getLikeablePersonFromMax()));
-        }
-
-        if(likeablePersonToUsername != null) { // 호감 타입까지 같은 경우는 이 코드까지 도달하지 못한다.
-            return RsData.of("S-2", "존재하는 호감 표시이나, 사유를 변경할 수 있습니다.", likeablePersonToUsername);
-        }
-
-        return RsData.of("S-1", "호감상대 등록 가능 상태입니다.");
-    }
-
-    public List<LikeablePerson> findByFromInstaMemberId(Long fromInstaMemberId) {
-        return likeablePersonRepository.findByFromInstaMemberId(fromInstaMemberId);
     }
 
     public Optional<LikeablePerson> findById(Long id) {
