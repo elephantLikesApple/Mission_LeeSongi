@@ -7,6 +7,7 @@ import com.ll.gramgram.boundedContext.instaMember.entity.InstaMember;
 import com.ll.gramgram.boundedContext.instaMember.service.InstaMemberService;
 import com.ll.gramgram.boundedContext.likeablePerson.entity.LikeablePerson;
 import com.ll.gramgram.boundedContext.likeablePerson.repository.LikeablePersonRepository;
+import com.ll.gramgram.boundedContext.likeablePerson.strategy.Validation;
 import com.ll.gramgram.boundedContext.member.entity.Member;
 import com.ll.gramgram.boundedContext.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,6 +63,15 @@ public class LikeablePersonService {
     }
 
     private RsData<LikeablePerson> canAdd(Member member, String username, int attractiveTypeCode) {
+        return  new Validation().then(new Validation.CheckConnectedInstaMember())
+                .then(new Validation.CheckSelfLike())
+                .then(new Validation.CheckDuplicatedLike(likeablePersonRepository))
+                .then(new Validation.CheckMaxLikes(likeablePersonRepository))
+                .then(new Validation.CheckAttractiveTypeCodeChange(likeablePersonRepository))
+                .excute(member, username, attractiveTypeCode);
+    }
+
+    private RsData<LikeablePerson> canAdd2(Member member, String username, int attractiveTypeCode) {
         if (!member.hasConnectedInstaMember()) {
             return RsData.of("F-2", "먼저 본인의 인스타그램 아이디를 입력해야 합니다.");
         }
