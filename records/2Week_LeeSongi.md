@@ -123,6 +123,6 @@
 - [x] 엔티티들의 공통 부분을 따로 빼기
 - [x] 호감표시 삭제할 때 양방향 관계 고려하는 코드 작성
 - [ ] ui 적용하기
-  - [ ] login.html
+  - [x] login.html
   - [ ] add.html
   - [x] layout.html
