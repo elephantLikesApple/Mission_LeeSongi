@@ -126,3 +126,5 @@
   - [x] login.html
   - [ ] add.html
   - [x] layout.html
+  - [x] join.html
+  - [x] me.html
