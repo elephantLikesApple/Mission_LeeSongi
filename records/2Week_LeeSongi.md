@@ -122,9 +122,9 @@
     - 배보다 배꼽인 느낌이다. 이렇게 하는게 좋은건가?
 - [x] 엔티티들의 공통 부분을 따로 빼기
 - [x] 호감표시 삭제할 때 양방향 관계 고려하는 코드 작성
-- [ ] ui 적용하기
+- [x] ui 적용하기
   - [x] login.html
-  - [ ] add.html
+  - [x] add.html
   - [x] layout.html
   - [x] join.html
   - [x] me.html

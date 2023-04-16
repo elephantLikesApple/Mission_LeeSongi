@@ -6,7 +6,7 @@
 
 <body>
 
-<main layout:fragment="main">
+<main class="flex-grow flex items-center justify-center" layout:fragment="main">
     <th:block th:unless="${@rq.member.hasConnectedInstaMember}">
         <div>먼저 본인의 인스타그램 아이디를 입력해주세요.</div>
 
@@ -52,16 +52,28 @@
 
                 form.submit(); // 폼 발송
             }
-        </script>
 
-        <form th:action method="POST" class="p-10 max-w-sm flex flex-col gap-4"
+            function setTimeoutZero(callback) {
+                setTimeout(callback);
+            }
+        </script>
+    <div class="max-w-2xl w-full px-4">
+        <form th:action method="POST" class="flex flex-col gap-6"
               onsubmit="AddForm__submit(this); return false;">
             <div>
                 당신의 인스타ID : <span class="badge" th:text="${@rq.member.instaMember.username}"></span>
             </div>
-            <div>
+            <div class="form-control">
                 <input type="text" name="username" autocomplete="off" maxlength="30" placeholder="상대방의 인스타그램 아이디"
-                       class="input input-bordered">
+                       class="input input-bordered" onkeyup="$(this).next().children('a').children(':last-child').text(this.value.trim());"
+                       onchange="$(this).keyup();" onpaste="setTimeoutZero(() => $(this).keyup());">
+                <div class="mt-3">
+                    <span>보기 : </span>
+                    <a href target="_blank" style="display:inline-flex;" onclick="$(this).attr('href', $(this).text().replaceAll(' ', ''));">
+                        <span>https://instagram.com/</span>
+                        <span></span>
+                    </a>
+                </div>
             </div>
             <div>
                 <div class="form-control">
@@ -87,6 +99,7 @@
                 <input type="submit" value="추가" class="btn btn-primary">
             </div>
         </form>
+    </div>
     </th:block>
 </main>
 </body>
