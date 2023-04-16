@@ -125,4 +125,4 @@
 - [ ] ui 적용하기
   - [ ] login.html
   - [ ] add.html
-  - [ ] layout.html
+  - [x] layout.html
