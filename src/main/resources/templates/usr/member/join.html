@@ -3,10 +3,9 @@
 <head>
     <title>회원가입</title>
 </head>
-
 <body>
 
-<main layout:fragment="main">
+<main class="flex-grow flex items-center justify-center" layout:fragment="main">
     <script>
         function JoinForm__submit(form) {
             // username 이(가) 올바른지 체크
@@ -41,24 +40,51 @@
                 return;
             }
 
+            form.passwordCheck.value = form.passwordCheck.value.trim();
+
+            if(form.passwordCheck.value !== form.password.value) {
+                toastWarning('비밀번호가 일치하지 않습니다.');
+                form.password.focus();
+                return;
+            }
+
             form.submit(); // 폼 발송
         }
     </script>
 
-    <form th:action method="POST" class="p-10 flex flex-col gap-4" onsubmit="JoinForm__submit(this); return false;">
-        <div>
-            <input type="text" name="username" maxlength="30" placeholder="아이디" class="input input-bordered">
-        </div>
-        <div>
-            <input type="password" name="password" maxlength="30" placeholder="비밀번호" class="input input-bordered">
-        </div>
-        <div>
-            <input type="submit" value="회원가입" class="btn btn-primary">
-        </div>
-    </form>
+    <div class="max-w-2xl w-full px-4">
+        <h1 class="mb-4">
+            <i class="fa-solid fa-user-plus"></i> 회원가입
+        </h1>
+
+        <form th:action method="POST" class="flex flex-col gap-6" onsubmit="JoinForm__submit(this); return false;">
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">아이디</span>
+                </label>
+                <input type="text" name="username" maxlength="30" placeholder="아이디" class="input input-bordered" autofocus />
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">비밀번호</span>
+                </label>
+                <input type="password" name="password" maxlength="30" placeholder="비밀번호" class="input input-bordered" />
+            </div>
+            <div class="form-control">
+                <label class="label">
+                    <span class="label-text">비밀번호 확인</span>
+                </label>
+                <input type="password" name="passwordCheck" maxlength="30" placeholder="비밀번호" class="input input-bordered" />
+            </div>
+            <button class="btn btn-block btn-primary gap-1">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>회원가입</span>
+            </button>
+
+        </form>
+    </div>
 </main>
 
 </body>
-
 </html>
 

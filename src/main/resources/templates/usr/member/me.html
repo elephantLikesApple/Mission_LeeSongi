@@ -6,11 +6,17 @@
 
 <body>
 
-<main layout:fragment="main">
-    <div>번호 : <span th:text="${@rq.member.id}"></span></div>
-    <div>이름 : <span th:text="${@rq.member.username}"></span></div>
-    <div>가입날짜 : <span th:text="${#temporals.format(@rq.member.createDate, 'yyyy-MM-dd HH:mm')}"></span></div>
-    <div>수정날짜 : <span th:text="${#temporals.format(@rq.member.modifyDate, 'yyyy-MM-dd HH:mm')}"></span></div>
+<main class="flex-grow flex items-center justify-center" layout:fragment="main">
+    <div class="max-w-2xl w-full px-4 gap-6 flex flex-col">
+        <div>번호 : <span th:text="${@rq.member.id}"></span></div>
+        <div>이름 :
+            <span th:text="${@rq.member.username}"></span>
+            <span th:if="${@rq.member.hasConnectedInstaMember}" th:text="${@rq.member.instaMember.username}"
+                  class="badge"></span>
+        </div>
+        <div>가입날짜 : <span th:text="${#temporals.format(@rq.member.createDate, 'yyyy-MM-dd HH:mm')}"></span></div>
+        <div>수정날짜 : <span th:text="${#temporals.format(@rq.member.modifyDate, 'yyyy-MM-dd HH:mm')}"></span></div>
+    </div>
 </main>
 
 
