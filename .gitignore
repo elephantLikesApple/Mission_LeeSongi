@@ -36,5 +36,8 @@ out/
 ### VS Code ###
 .vscode/
 
+### Custom ###
+application-secret.yml
 
-src/main/resources/application-oauth.yml
+src/main/generated
+.DS_Store
