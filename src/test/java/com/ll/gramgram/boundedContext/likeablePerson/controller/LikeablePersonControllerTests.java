@@ -443,7 +443,8 @@ public class LikeablePersonControllerTests {
         resultActions
                 .andExpect(handler().handlerType(LikeablePersonController.class))
                 .andExpect(handler().methodName("like"))
-                .andExpect(status().is4xxClientError());
+                .andExpect(status().is4xxClientError())
+                .andExpect(request().attribute("historyBackErrorMsg", "2시간 59분 후에 해당 호감표시를 수정할 수 있습니다."));
 
 
         int newAttractiveTypeCode = opLikeablePerson
