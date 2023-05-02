@@ -96,6 +96,10 @@ public class LikeablePersonService {
         if (actorInstaMemberId != fromInstaMemberId)
             return RsData.of("F-2", "권한이 없습니다.");
 
+        if(!likeablePerson.isModifyUnlocked()) {
+            return RsData.of("F-3", "%s 후에 해당 호감표시를 삭제할 수 있습니다.".formatted(likeablePerson.getModifyUnlockDateRemainStrHuman()), likeablePerson.getModifyUnlockDateRemainStrHuman());
+        }
+
         return RsData.of("S-1", "삭제가능합니다.");
     }
 
