@@ -391,4 +391,60 @@ public class LikeablePersonControllerTests {
 
         assertThat(newAttractiveTypeCode).isEqualTo(2);
     }
+
+    @Test
+    @DisplayName("3시간 전에 호감을 표시한 유저(호감사유 2)에게 새로운 사유(1)로 호감을 표시하면 호감 사유가 수정된다.")
+    @WithUserDetails("user3")
+    void t016() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(post("/usr/likeablePerson/like")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "insta_user100")
+                        .param("attractiveTypeCode", "1")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("like"))
+                .andExpect(status().is3xxRedirection());
+
+        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user100");
+
+        int newAttractiveTypeCode = opLikeablePerson
+                .map(LikeablePerson::getAttractiveTypeCode)
+                .orElse(-1);
+
+        assertThat(newAttractiveTypeCode).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("1초 전에 호감을 표시한 유저(호감사유 1)에게 새로운 사유(3)로 호감을 표시하면 호감 사유가 수정되지 않는다.")
+    @WithUserDetails("user3")
+    void t017() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(post("/usr/likeablePerson/like")
+                        .with(csrf()) // CSRF 키 생성
+                        .param("username", "insta_user4")
+                        .param("attractiveTypeCode", "3")
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("like"))
+                .andExpect(status().is4xxClientError());
+
+        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user100");
+
+        int newAttractiveTypeCode = opLikeablePerson
+                .map(LikeablePerson::getAttractiveTypeCode)
+                .orElse(-1);
+
+        assertThat(newAttractiveTypeCode).isEqualTo(1);
+    }
 }
