@@ -453,4 +453,48 @@ public class LikeablePersonControllerTests {
 
         assertThat(newAttractiveTypeCode).isEqualTo(oldAttractiveTypeCode);
     }
+
+    @Test
+    @DisplayName("3시간 전에 한 호감표시에 삭제요청이 들어오면 해당 호감표시는 삭제된다.")
+    @WithUserDetails("user3")
+    void t018() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/usr/likeablePerson/2")
+                                .with(csrf())
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("cancel"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrlPattern("/usr/likeablePerson/list**"));
+
+        assertThat(likeablePersonService.findById(2L).isPresent()).isEqualTo(false);
+    }
+
+    @Test
+    @DisplayName("1초 전에 한 호감표시에 삭제요청이 들어오면 해당 호감표시는 삭제되지 않는다.")
+    @WithUserDetails("user3")
+    void t019() throws Exception {
+        // WHEN
+        ResultActions resultActions = mvc
+                .perform(
+                        delete("/usr/likeablePerson/1")
+                                .with(csrf())
+                )
+                .andDo(print());
+
+        // THEN
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("cancel"))
+                .andExpect(status().is4xxClientError())
+                .andExpect(request().attribute("historyBackErrorMsg", "2시간 59분 후에 해당 호감표시를 삭제할 수 있습니다."));
+
+        assertThat(likeablePersonService.findById(1L).isPresent()).isEqualTo(true);
+    }
 }
