@@ -424,6 +424,12 @@ public class LikeablePersonControllerTests {
     @DisplayName("1초 전에 호감을 표시한 유저(호감사유 1)에게 새로운 사유(3)로 호감을 표시하면 호감 사유가 수정되지 않는다.")
     @WithUserDetails("user3")
     void t017() throws Exception {
+        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user100");
+
+        int oldAttractiveTypeCode = opLikeablePerson
+                .map(LikeablePerson::getAttractiveTypeCode)
+                .orElse(-1);
+
         // WHEN
         ResultActions resultActions = mvc
                 .perform(post("/usr/likeablePerson/like")
@@ -439,12 +445,11 @@ public class LikeablePersonControllerTests {
                 .andExpect(handler().methodName("like"))
                 .andExpect(status().is4xxClientError());
 
-        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user100");
 
         int newAttractiveTypeCode = opLikeablePerson
                 .map(LikeablePerson::getAttractiveTypeCode)
                 .orElse(-1);
 
-        assertThat(newAttractiveTypeCode).isEqualTo(1);
+        assertThat(newAttractiveTypeCode).isEqualTo(oldAttractiveTypeCode);
     }
 }
