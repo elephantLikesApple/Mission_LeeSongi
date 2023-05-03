@@ -219,7 +219,7 @@ public class LikeablePersonControllerTests {
         // WHEN
         ResultActions resultActions = mvc
                 .perform(
-                        delete("/usr/likeablePerson/1")
+                        delete("/usr/likeablePerson/2")
                                 .with(csrf())
                 )
                 .andDo(print());
@@ -232,7 +232,7 @@ public class LikeablePersonControllerTests {
                 .andExpect(redirectedUrlPattern("/usr/likeablePerson/list**"))
         ;
 
-        assertThat(likeablePersonService.findById(1L).isPresent()).isEqualTo(false);
+        assertThat(likeablePersonService.findById(2L).isPresent()).isEqualTo(false);
     }
 
     @Test
@@ -372,8 +372,8 @@ public class LikeablePersonControllerTests {
         ResultActions resultActions = mvc
                 .perform(post("/usr/likeablePerson/like")
                         .with(csrf()) // CSRF 키 생성
-                        .param("username", "insta_user4")
-                        .param("attractiveTypeCode", "2")
+                        .param("username", "insta_user100")
+                        .param("attractiveTypeCode", "3")
                 )
                 .andDo(print());
 
@@ -383,13 +383,13 @@ public class LikeablePersonControllerTests {
                 .andExpect(handler().methodName("like"))
                 .andExpect(status().is3xxRedirection());
 
-        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user4");
+        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user100");
 
         int newAttractiveTypeCode = opLikeablePerson
                 .map(LikeablePerson::getAttractiveTypeCode)
                 .orElse(-1);
 
-        assertThat(newAttractiveTypeCode).isEqualTo(2);
+        assertThat(newAttractiveTypeCode).isEqualTo(3);
     }
 
     @Test
