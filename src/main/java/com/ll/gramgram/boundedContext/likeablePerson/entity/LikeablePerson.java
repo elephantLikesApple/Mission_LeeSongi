@@ -46,7 +46,6 @@ public class LikeablePerson extends BaseEntity {
 
     // 초 단위에서 올림 해주세요.
     public String getModifyUnlockDateRemainStrHuman() {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH시간 mm분");
         long remainTimeMillis = getModifyUnlockDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         long hours = TimeUnit.MILLISECONDS.toHours(remainTimeMillis) % 24;
         long minutes = TimeUnit.MILLISECONDS.toMinutes(remainTimeMillis) % 60;
