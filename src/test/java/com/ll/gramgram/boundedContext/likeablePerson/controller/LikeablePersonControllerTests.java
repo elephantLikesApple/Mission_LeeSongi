@@ -398,7 +398,7 @@ public class LikeablePersonControllerTests {
     void t016() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
-                .perform(post("/usr/likeablePerson/like")
+                .perform(post("/usr/likeablePerson/modify/2")
                         .with(csrf()) // CSRF 키 생성
                         .param("username", "insta_user100")
                         .param("attractiveTypeCode", "1")
@@ -408,7 +408,7 @@ public class LikeablePersonControllerTests {
         // THEN
         resultActions
                 .andExpect(handler().handlerType(LikeablePersonController.class))
-                .andExpect(handler().methodName("like"))
+                .andExpect(handler().methodName("modify"))
                 .andExpect(status().is3xxRedirection());
 
         Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user100");
@@ -424,7 +424,7 @@ public class LikeablePersonControllerTests {
     @DisplayName("1초 전에 호감을 표시한 유저(호감사유 1)에게 새로운 사유(3)로 호감을 표시하면 호감 사유가 수정되지 않는다.")
     @WithUserDetails("user3")
     void t017() throws Exception {
-        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user100");
+        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user4");
 
         int oldAttractiveTypeCode = opLikeablePerson
                 .map(LikeablePerson::getAttractiveTypeCode)
@@ -432,9 +432,8 @@ public class LikeablePersonControllerTests {
 
         // WHEN
         ResultActions resultActions = mvc
-                .perform(post("/usr/likeablePerson/like")
+                .perform(post("/usr/likeablePerson/modify/1")
                         .with(csrf()) // CSRF 키 생성
-                        .param("username", "insta_user4")
                         .param("attractiveTypeCode", "3")
                 )
                 .andDo(print());
@@ -442,7 +441,7 @@ public class LikeablePersonControllerTests {
         // THEN
         resultActions
                 .andExpect(handler().handlerType(LikeablePersonController.class))
-                .andExpect(handler().methodName("like"))
+                .andExpect(handler().methodName("modify"))
                 .andExpect(status().is4xxClientError())
                 .andExpect(request().attribute("historyBackErrorMsg", "2시간 59분 후에 해당 호감표시를 수정할 수 있습니다."));
 
