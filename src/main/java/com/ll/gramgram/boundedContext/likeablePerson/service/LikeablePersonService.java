@@ -96,6 +96,10 @@ public class LikeablePersonService {
         if (actorInstaMemberId != fromInstaMemberId)
             return RsData.of("F-2", "권한이 없습니다.");
 
+        if(!likeablePerson.isModifyUnlocked()) {
+            return RsData.of("F-3", "%s 후에 해당 호감표시를 삭제할 수 있습니다.".formatted(likeablePerson.getModifyUnlockDateRemainStrHuman()), likeablePerson.getModifyUnlockDateRemainStrHuman());
+        }
+
         return RsData.of("S-1", "삭제가능합니다.");
     }
 
@@ -206,10 +210,13 @@ public class LikeablePersonService {
         InstaMember fromInstaMember = actor.getInstaMember();
 
         if (!Objects.equals(likeablePerson.getFromInstaMember().getId(), fromInstaMember.getId())) {
-            return RsData.of("F-2", "해당 호감표시를 취소할 권한이 없습니다.");
+            return RsData.of("F-2", "해당 호감표시를 수정할 권한이 없습니다.");
         }
 
+        if (!likeablePerson.isModifyUnlocked()) {
+            return RsData.of("F-3", "%s 후에 해당 호감표시를 수정할 수 있습니다.".formatted(likeablePerson.getModifyUnlockDateRemainStrHuman()), likeablePerson.getModifyUnlockDateRemainStrHuman());
+        }
 
-        return RsData.of("S-1", "호감표시취소가 가능합니다.");
+        return RsData.of("S-1", "호감표시 변경이 가능합니다.");
     }
 }
