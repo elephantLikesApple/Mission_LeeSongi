@@ -12,13 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
-import java.sql.Timestamp;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 @Entity
 @Getter
@@ -46,10 +40,7 @@ public class LikeablePerson extends BaseEntity {
 
     // 초 단위에서 올림 해주세요.
     public String getModifyUnlockDateRemainStrHuman() {
-        long remainTimeMillis = getModifyUnlockDate().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-        long hours = TimeUnit.MILLISECONDS.toHours(remainTimeMillis) % 24;
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(remainTimeMillis) % 60;
-        return "%d시간 %d분".formatted(hours, minutes);
+        return Ut.time.diffFormat1Human(LocalDateTime.now(), modifyUnlockDate);
     }
 
     public RsData updateAttractionTypeCode(int attractiveTypeCode) {

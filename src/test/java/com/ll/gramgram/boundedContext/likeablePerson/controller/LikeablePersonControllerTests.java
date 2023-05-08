@@ -172,7 +172,6 @@ public class LikeablePersonControllerTests {
         ResultActions resultActions = mvc
                 .perform(post("/usr/likeablePerson/modify/2")
                         .with(csrf()) // CSRF 키 생성
-                        .param("username", "abcd")
                         .param("attractiveTypeCode", "3")
                 )
                 .andDo(print());
@@ -219,7 +218,7 @@ public class LikeablePersonControllerTests {
         // WHEN
         ResultActions resultActions = mvc
                 .perform(
-                        delete("/usr/likeablePerson/2")
+                        delete("/usr/likeablePerson/1")
                                 .with(csrf())
                 )
                 .andDo(print());
@@ -232,7 +231,7 @@ public class LikeablePersonControllerTests {
                 .andExpect(redirectedUrlPattern("/usr/likeablePerson/list**"))
         ;
 
-        assertThat(likeablePersonService.findById(2L).isPresent()).isEqualTo(false);
+        assertThat(likeablePersonService.findById(1L).isPresent()).isEqualTo(false);
     }
 
     @Test
@@ -372,8 +371,8 @@ public class LikeablePersonControllerTests {
         ResultActions resultActions = mvc
                 .perform(post("/usr/likeablePerson/like")
                         .with(csrf()) // CSRF 키 생성
-                        .param("username", "insta_user100")
-                        .param("attractiveTypeCode", "3")
+                        .param("username", "insta_user4")
+                        .param("attractiveTypeCode", "2")
                 )
                 .andDo(print());
 
@@ -383,56 +382,44 @@ public class LikeablePersonControllerTests {
                 .andExpect(handler().methodName("like"))
                 .andExpect(status().is3xxRedirection());
 
-        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user100");
+        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user4");
 
         int newAttractiveTypeCode = opLikeablePerson
                 .map(LikeablePerson::getAttractiveTypeCode)
                 .orElse(-1);
 
-        assertThat(newAttractiveTypeCode).isEqualTo(3);
+        assertThat(newAttractiveTypeCode).isEqualTo(2);
     }
 
     @Test
-    @DisplayName("3시간 전에 호감을 표시한 유저(호감사유 2)에게 새로운 사유(1)로 호감을 표시하면 호감 사유가 수정된다.")
+    @DisplayName("호감취소는 쿨타임이 지나야 가능하다.")
     @WithUserDetails("user3")
     void t016() throws Exception {
         // WHEN
         ResultActions resultActions = mvc
-                .perform(post("/usr/likeablePerson/modify/2")
-                        .with(csrf()) // CSRF 키 생성
-                        .param("username", "insta_user100")
-                        .param("attractiveTypeCode", "1")
+                .perform(
+                        delete("/usr/likeablePerson/3")
+                                .with(csrf())
                 )
                 .andDo(print());
 
         // THEN
         resultActions
                 .andExpect(handler().handlerType(LikeablePersonController.class))
-                .andExpect(handler().methodName("modify"))
-                .andExpect(status().is3xxRedirection());
+                .andExpect(handler().methodName("cancel"))
+                .andExpect(status().is4xxClientError())
+        ;
 
-        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user100");
-
-        int newAttractiveTypeCode = opLikeablePerson
-                .map(LikeablePerson::getAttractiveTypeCode)
-                .orElse(-1);
-
-        assertThat(newAttractiveTypeCode).isEqualTo(1);
+        assertThat(likeablePersonService.findById(3L).isPresent()).isEqualTo(true);
     }
 
     @Test
-    @DisplayName("1초 전에 호감을 표시한 유저(호감사유 1)에게 새로운 사유(3)로 호감을 표시하면 호감 사유가 수정되지 않는다.")
+    @DisplayName("호감사유변경은 쿨타임이 지나야 가능하다.")
     @WithUserDetails("user3")
     void t017() throws Exception {
-        Optional<LikeablePerson> opLikeablePerson = likeablePersonService.findByFromInstaMember_usernameAndToInstaMember_username("insta_user3", "insta_user4");
-
-        int oldAttractiveTypeCode = opLikeablePerson
-                .map(LikeablePerson::getAttractiveTypeCode)
-                .orElse(-1);
-
         // WHEN
         ResultActions resultActions = mvc
-                .perform(post("/usr/likeablePerson/modify/1")
+                .perform(post("/usr/likeablePerson/modify/3")
                         .with(csrf()) // CSRF 키 생성
                         .param("attractiveTypeCode", "3")
                 )
@@ -442,58 +429,8 @@ public class LikeablePersonControllerTests {
         resultActions
                 .andExpect(handler().handlerType(LikeablePersonController.class))
                 .andExpect(handler().methodName("modify"))
-                .andExpect(status().is4xxClientError())
-                .andExpect(request().attribute("historyBackErrorMsg", "2시간 59분 후에 해당 호감표시를 수정할 수 있습니다."));
+                .andExpect(status().is4xxClientError());
 
-
-        int newAttractiveTypeCode = opLikeablePerson
-                .map(LikeablePerson::getAttractiveTypeCode)
-                .orElse(-1);
-
-        assertThat(newAttractiveTypeCode).isEqualTo(oldAttractiveTypeCode);
-    }
-
-    @Test
-    @DisplayName("3시간 전에 한 호감표시에 삭제요청이 들어오면 해당 호감표시는 삭제된다.")
-    @WithUserDetails("user3")
-    void t018() throws Exception {
-        // WHEN
-        ResultActions resultActions = mvc
-                .perform(
-                        delete("/usr/likeablePerson/2")
-                                .with(csrf())
-                )
-                .andDo(print());
-
-        // THEN
-        resultActions
-                .andExpect(handler().handlerType(LikeablePersonController.class))
-                .andExpect(handler().methodName("cancel"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("/usr/likeablePerson/list**"));
-
-        assertThat(likeablePersonService.findById(2L).isPresent()).isEqualTo(false);
-    }
-
-    @Test
-    @DisplayName("1초 전에 한 호감표시에 삭제요청이 들어오면 해당 호감표시는 삭제되지 않는다.")
-    @WithUserDetails("user3")
-    void t019() throws Exception {
-        // WHEN
-        ResultActions resultActions = mvc
-                .perform(
-                        delete("/usr/likeablePerson/1")
-                                .with(csrf())
-                )
-                .andDo(print());
-
-        // THEN
-        resultActions
-                .andExpect(handler().handlerType(LikeablePersonController.class))
-                .andExpect(handler().methodName("cancel"))
-                .andExpect(status().is4xxClientError())
-                .andExpect(request().attribute("historyBackErrorMsg", "2시간 59분 후에 해당 호감표시를 삭제할 수 있습니다."));
-
-        assertThat(likeablePersonService.findById(1L).isPresent()).isEqualTo(true);
+        assertThat(likeablePersonService.findById(3L).get().getAttractiveTypeCode()).isEqualTo(2);
     }
 }
