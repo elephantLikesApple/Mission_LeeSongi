@@ -6,8 +6,8 @@
 
 ---
 **필수미션**
-- [ ] 내가 받은 호감리스트에서 성별 필터링 기능 구현
-  - [ ] 특정 성별을 가진 사람에게서 받은 호감만 필터링해서 볼 수 있다.
+- [x] 내가 받은 호감리스트에서 성별 필터링 기능 구현
+  - [x] 특정 성별을 가진 사람에게서 받은 호감만 필터링해서 볼 수 있다.
 - [x] 네이버클라우드플랫폼을 통한 배포 (도메인, https) 적용
   - [x] `https://도메인/` 형태로 접속이 가능
     - [bbosong.kro.kr](https://www.bbosong.kro.kr)
@@ -40,8 +40,14 @@
   - 요청 : get(usr/likeablePerson/toList)
   - 매칭되는 함수 : LikeablePersonController.showToList(Model model)
   - 성공 여부 : model의 attribute를 읽어서 조건 확인
-    - (t018)성별 필터링
+    - (t018) 성별 필터링
       - user4(insta_user4)가 받은 호감은 여성에게 1개
-      - 모델에 넘어온 리스트의 from
+      - 모델에 넘어온 리스트의 fromInstaMember의 gender값이 모두 입력한 gender값과 같은지 확인
+
+**LikeablePersonService.java**
+- 내가 받은 호감리스트에서 필터링 기능
+  - filterLikableePeople()
+    - gender의 값이 W또는 M이었다가 전체로 돌아가면 `null`이 아니라 `""`이 된다.
+    - gender의 값이 비었는지 검사는 이렇게 `gender != null && !gender.trim().equals("")`
 
 **[특이사항]**
