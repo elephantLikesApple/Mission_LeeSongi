@@ -35,5 +35,13 @@
 
 **[접근 방법]**
 
+**LikeablePersonControllerTests.java**
+- 내가 받은 호감리스트에서 필터링 기능
+  - 요청 : get(usr/likeablePerson/toList)
+  - 매칭되는 함수 : LikeablePersonController.showToList(Model model)
+  - 성공 여부 : model의 attribute를 읽어서 조건 확인
+    - (t018)성별 필터링
+      - user4(insta_user4)가 받은 호감은 여성에게 1개
+      - 모델에 넘어온 리스트의 from
 
 **[특이사항]**

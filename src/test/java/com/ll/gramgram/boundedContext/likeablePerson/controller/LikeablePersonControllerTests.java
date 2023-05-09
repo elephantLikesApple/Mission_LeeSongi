@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -432,5 +432,28 @@ public class LikeablePersonControllerTests {
                 .andExpect(status().is4xxClientError());
 
         assertThat(likeablePersonService.findById(3L).get().getAttractiveTypeCode()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("내가 받은 호감 리스트를 성별로 필터링")
+    @WithUserDetails("user4")
+    void t018() throws Exception {
+        ResultActions resultActions = mvc
+                .perform(get("/usr/likeablePerson/toList")
+                        .with(csrf())
+                        .param("gender", "M")
+                )
+                .andDo(print());
+
+        resultActions
+                .andExpect(handler().handlerType(LikeablePersonController.class))
+                .andExpect(handler().methodName("showToList"))
+                .andExpect(status().is2xxSuccessful())
+                .andExpect(model().attributeExists("likeablePeople"))
+                .andExpect(model().attribute(
+                        "likeablePeople",
+                        either(is(empty()))
+                                .or(everyItem(hasProperty("fromInstaMember",
+                                        hasProperty("gender", is("M")))))));
     }
 }
