@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -225,10 +226,45 @@ public class LikeablePersonService {
         Stream<LikeablePerson> likeablePeople = toLikeablePeople.stream();
 
         if(gender != null && !gender.trim().equals("")) {
-            return likeablePeople.filter(likeablePerson -> likeablePerson.getFromInstaMember().getGender().equals(gender)).toList();
+            likeablePeople = likeablePeople.filter(likeablePerson -> likeablePerson.getFromInstaMember().getGender().equals(gender));
         }
         if(attractiveTypeCode != 0) {
-            return likeablePeople.filter(likeablePerson -> likeablePerson.getAttractiveTypeCode() == attractiveTypeCode).toList();
+            likeablePeople = likeablePeople.filter(likeablePerson -> likeablePerson.getAttractiveTypeCode() == attractiveTypeCode);
+        }
+
+        switch (sortCode) {
+            case 1:
+                likeablePeople = likeablePeople.sorted(Comparator.comparing(LikeablePerson::getModifyDate).reversed());
+                break;
+            case 2:
+                likeablePeople = likeablePeople.sorted(Comparator.comparing(LikeablePerson::getModifyDate));
+                break;
+            case 3:
+                likeablePeople = likeablePeople.sorted(Comparator.comparing((LikeablePerson lp) -> lp.getFromInstaMember().getToLikeablePeople().size()).reversed());
+                break;
+            case 4:
+                likeablePeople = likeablePeople.sorted(Comparator.comparing(lp -> lp.getFromInstaMember().getToLikeablePeople().size()));
+                break;
+            case 5:
+                likeablePeople = likeablePeople.sorted((lp1, lp2) -> {
+                    int genderCompare = lp2.getFromInstaMember().getGender().compareTo(lp1.getFromInstaMember().getGender());
+                    if (genderCompare != 0) {
+                        return genderCompare;
+                    } else {
+                        return lp2.getModifyDate().compareTo(lp1.getModifyDate());
+                    }
+                });
+                break;
+            case 6:
+                likeablePeople = likeablePeople.sorted((lp1, lp2) -> {
+                    int genderCompare = lp1.getAttractiveTypeCode() - (lp2.getAttractiveTypeCode());
+                    if (genderCompare != 0) {
+                        return genderCompare;
+                    } else {
+                        return lp2.getModifyDate().compareTo(lp1.getModifyDate());
+                    }
+                });
+                break;
         }
 
         return likeablePeople.toList();
