@@ -227,6 +227,9 @@ public class LikeablePersonService {
         if(gender != null && !gender.trim().equals("")) {
             return likeablePeople.filter(likeablePerson -> likeablePerson.getFromInstaMember().getGender().equals(gender)).toList();
         }
+        if(attractiveTypeCode != 0) {
+            return likeablePeople.filter(likeablePerson -> likeablePerson.getAttractiveTypeCode() == attractiveTypeCode).toList();
+        }
 
         return likeablePeople.toList();
     }
