@@ -43,6 +43,9 @@
     - (t018) 성별 필터링
       - user4(insta_user4)가 받은 호감은 여성에게 1개
       - 모델에 넘어온 리스트의 fromInstaMember의 gender값이 모두 입력한 gender값과 같은지 확인
+    - (t019) 호감사유 필터링
+      - user4(insta_user4)가 받은 호감 사유는 1(외모)에 1개
+      - 모델에 넘어온 리스트의 attractiveTypeCode가 모두 입력한 attractiveTypeCode와 같은지 확인
 
 **LikeablePersonService.java**
 - 내가 받은 호감리스트에서 필터링 기능
